@@ -64,7 +64,7 @@ See samples.html & source below. Feel free to extend the extents.
                 rowHeight: 20,
                 rows: 7,
                 barVAlign: "top",
-                labelHAlign: "left",
+                labelHAlign: "left"
             }
         }
     };
