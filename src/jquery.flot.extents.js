@@ -114,7 +114,7 @@ See samples.html & source below. Feel free to extend the extents.
         if (series.extents.barVAlign == "top")
             yfrom = 4 + series.extents.rowHeight*extent.row;
         else
-            yfrom = height - 4 - series.extents.rowHeight*(extent.row+1);
+            yfrom = height - 4 - series.extents.rowHeight*(extent.row) - series.extents.barHeight;
 
         if (series.extents.fill) {
             ctx.fillStyle = extent.fillColor;
@@ -131,11 +131,11 @@ See samples.html & source below. Feel free to extend the extents.
 
         var yfrom, yto;
         if (series.extents.barVAlign == "top") {
-            yfrom = 4 + Math.round(series.extents.rowHeight*(rfrom+.5));
-            yto = 4 + Math.round(series.extents.rowHeight*(rto+.5));
+            yfrom = 4 + Math.round(series.extents.rowHeight*rfrom) + Math.round(series.extents.barHeight*0.5);
+            yto = 4 + Math.round(series.extents.rowHeight*rto) + Math.round(series.extents.barHeight*0.5);
         } else {
-            yfrom = height - 4 - Math.round(series.extents.rowHeight*(rfrom+0.5));
-            yto = height - 4 - Math.round(series.extents.rowHeight*(rto+0.5));
+            yfrom = height - 4 - Math.round(series.extents.rowHeight*rfrom) - Math.round(series.extents.barHeight*0.5);
+            yto = height - 4 - Math.round(series.extents.rowHeight*rto) - Math.round(series.extents.barHeight*0.5);
         }
 
         ctx.beginPath();
@@ -154,7 +154,7 @@ See samples.html & source below. Feel free to extend the extents.
         if (series.extents.barVAlign == "top")
             styles.push("top:"+Math.round((plotOffset.top+series.extents.rowHeight*extent.row+4))+"px");
         else
-            styles.push("bottom:"+Math.round((plotOffset.bottom+series.marks.rowHeight*extent.row+4))+"px");
+            styles.push("bottom:"+Math.round((plotOffset.bottom+series.extents.rowHeight*extent.row+4))+"px");
         if (extent.labelHAlign == "left")
             styles.push("left:"+Math.round((plotOffset.left+xfrom+3))+"px");
         else
