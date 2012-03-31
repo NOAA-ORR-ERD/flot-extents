@@ -224,6 +224,6 @@ See samples.html & source below. Feel free to extend the extents.
         init: init,
         name: "extents",
         options: options,
-        version: "0.1"
+        version: "0.2"
     });
 })(jQuery);
