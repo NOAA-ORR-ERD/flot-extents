@@ -81,15 +81,22 @@ See samples.html & source below. Feel free to extend the extents.
         datapoints.points = []; // Empty data
         datapoints.pointsize = 2; // Fake size
 
-        // Process our real data
+        // Check if we have extents data
         if (series.extentdata == null)
-            series.extentdata = [];
+            return;
+
+        // Process our real data
         var row = 0;
-        for (i = 0; i<series.extentdata.length; i++) {
-            if (series.extentdata[i].start == null)
-                series.extentdata[i].start = 0.0;
-            if ((series.extentdata[i].end == null) || (series.extentdata[i].end < series.extentdata[i].start))
-                series.extentdata[i].end = start+1.0;
+        for (i = 0; i < series.extentdata.length; i++) {
+            // Skip bad extents
+            if ((series.extentdata[i].start == null) || (series.extentdata[i].end == null))
+                continue;
+
+            if (series.extentdata[i].end < series.extentdata[i].start) {
+                var t = series.extentdata[i].end;
+                series.extentdata[i].end = series.extentdata[i].start;
+                series.extentdata[i].start = t;
+            }
             if ((series.extentdata[i].labelHAlign != "left") && (series.extentdata[i].labelHAlign != "right"))
                 series.extentdata[i].labelHAlign = series.extents.labelHAlign;
             if (series.extentdata[i].row == null) {
@@ -103,6 +110,7 @@ See samples.html & source below. Feel free to extend the extents.
             if (series.extentdata[i].fillColor == null)
                 series.extentdata[i].fillColor = series.extents.fillColor;
         }
+        
     };
 
     function drawSingleExtent(ctx, width, height, xfrom, xto, series, extent) {
@@ -165,7 +173,7 @@ See samples.html & source below. Feel free to extend the extents.
     }
 
     function drawSeries(plot, ctx, series) {
-        if (!series.extents || !series.extents.show)
+        if (!series.extents || !series.extents.show || !series.extentdata)
             return;
 
         var placeholder = plot.getPlaceholder();
@@ -187,6 +195,8 @@ See samples.html & source below. Feel free to extend the extents.
 
         for (var i = 0; i < series.extentdata.length; i++) {
             var xfrom, xto;
+            if ((series.extentdata[i].start == null) || (series.extentdata[i].end == null))
+                continue;
             if ((series.extentdata[i].start < axes.xaxis.max) && (series.extentdata[i].end > axes.xaxis.min)) {
                 xfrom = axes.xaxis.p2c((series.extentdata[i].start<axes.xaxis.min)?axes.xaxis.min:series.extentdata[i].start);
                 xto = axes.xaxis.p2c((series.extentdata[i].end>axes.xaxis.max)?axes.xaxis.max:series.extentdata[i].end);
@@ -197,6 +207,8 @@ See samples.html & source below. Feel free to extend the extents.
                         for (var j=0; j<series.extentdata[i].depends.length; j++) {
                             var k = series.extentdata[i].depends[j];
                             if ((k < 0) || (k >= series.extentdata.length))
+                                continue;
+                            if ((series.extentdata[k].start == null) || (series.extentdata[k].end == null))
                                 continue;
                             var cxto = xfrom;
                             var cxfrom = series.extentdata[k].end;
@@ -224,6 +236,6 @@ See samples.html & source below. Feel free to extend the extents.
         init: init,
         name: "extents",
         options: options,
-        version: "0.2"
+        version: "0.3"
     });
 })(jQuery);
