@@ -25,7 +25,7 @@ series: {
         rows: -- how many bar rows used
         barVAlign: "top"/"bottom" -- bar rows may lay on the floor or hang from the ceiling
         labelHAlign: "left"/"right" -- labels may be aligned to left or roght end of bar
-        click : callback -- fired on MouseUp on an extent.
+        click : callback : function(extent) -- fired on MouseUp on an extent. extent will be the original extentdata object.
     }
 }
 
@@ -141,7 +141,8 @@ See samples.html & source below. Feel free to extend the extents.
             xMax: xfrom + bw,
             yMin: yfrom,
             yMax: xfrom + series.extents.barHeight,
-            click: extent.click
+            click: extent.click,
+            "extent": extent
         });
     }
 
@@ -169,8 +170,8 @@ See samples.html & source below. Feel free to extend the extents.
         ctx.stroke();
     }
 
-    function performCallback(callback) {
-        typeof callback === "function" && callback();
+    function performCallback(callback, args) {
+        typeof callback === "function" && callback(args);
     }
 
     function addExtentLabel(placeholder, plotOffset, width, xfrom, xto, series, extent) {
@@ -255,7 +256,7 @@ See samples.html & source below. Feel free to extend the extents.
 
                 if (x >= rect.xMin && x <= rect.xMax) {
                     if (y >= rect.yMin && y <= rect.yMax) {
-                        performCallback(rect.click);
+                        performCallback(rect.click, rect.extent);
                     }
                 }
             }
