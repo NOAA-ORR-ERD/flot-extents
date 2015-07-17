@@ -25,6 +25,7 @@ series: {
         rows: -- how many bar rows used
         barVAlign: "top"/"bottom" -- bar rows may lay on the floor or hang from the ceiling
         labelHAlign: "left"/"right" -- labels may be aligned to left or roght end of bar
+        click : callback -- fired on MouseUp on an extent.
     }
 }
 
@@ -113,6 +114,8 @@ See samples.html & source below. Feel free to extend the extents.
         
     };
 
+    var extentsRects = [];
+
     function drawSingleExtent(ctx, width, height, xfrom, xto, series, extent) {
         if (xfrom < 0) xfrom = 0;
         if (xto > width) xto = width;
@@ -131,6 +134,15 @@ See samples.html & source below. Feel free to extend the extents.
 
         ctx.strokeStyle = extent.color;
         ctx.strokeRect(xfrom, yfrom, bw, series.extents.barHeight);
+
+        extentsRects.push(
+        {
+            xMin: xfrom,
+            xMax: xfrom + bw,
+            yMin: yfrom,
+            yMax: xfrom + series.extents.barHeight,
+            click: extent.click
+        });
     }
 
     function drawSingleConnection(ctx, width, height, xfrom, xto, rfrom, rto, series) {
@@ -157,24 +169,30 @@ See samples.html & source below. Feel free to extend the extents.
         ctx.stroke();
     }
 
+    function performCallback(callback) {
+        typeof callback === "function" && callback();
+    }
+
     function addExtentLabel(placeholder, plotOffset, width, xfrom, xto, series, extent) {
         var styles = [];
         if (series.extents.barVAlign == "top")
-            styles.push("top:"+Math.round((plotOffset.top+series.extents.rowHeight*extent.row+4))+"px");
+            styles.push("top:" + Math.round((plotOffset.top + series.extents.rowHeight * extent.row + 4)) + "px");
         else
-            styles.push("bottom:"+Math.round((plotOffset.bottom+series.extents.rowHeight*extent.row+4))+"px");
+            styles.push("bottom:" + Math.round((plotOffset.bottom + series.extents.rowHeight * extent.row + 4)) + "px");
         if (extent.labelHAlign == "left")
-            styles.push("left:"+Math.round((plotOffset.left+xfrom+3))+"px");
+            styles.push("left:" + Math.round((plotOffset.left + xfrom + 3)) + "px");
         else
-            styles.push("right:"+Math.round((plotOffset.right+(width-xto)+3))+"px");
+            styles.push("right:" + Math.round((plotOffset.right + (width - xto) + 3)) + "px");
         styles.push("");
 
-        placeholder.append('<div '+((extent.id !=null)?('id="'+extent.id+'" '):'')+'class="extentLabel" style="font-size:smaller;position:absolute;'+(styles.join(';'))+'">'+extent.label+'</div>');
+        placeholder.append('<div ' + ((extent.id != null) ? ('id="' + extent.id + '" ') : '') + 'class="extentLabel" style="font-size:smaller;position:absolute;' + (styles.join(';')) + '">' + extent.label + '</div>');
     }
 
     function drawSeries(plot, ctx, series) {
         if (!series.extents || !series.extents.show || !series.extentdata)
             return;
+
+        extentsRects = [];
 
         var placeholder = plot.getPlaceholder();
         placeholder.find(".extentLabel").remove();
@@ -227,9 +245,27 @@ See samples.html & source below. Feel free to extend the extents.
         ctx.restore();
     };
 
+    function bindEvents(plot, eventHolder) {
+        eventHolder.mouseup(function (e) {
+            var x = e.pageX;
+            var y = e.pageY;
+
+            for (var i = 0; i < extentsRects.length; i++) {
+                var rect = extentsRects[i];
+
+                if (x >= rect.xMin && x <= rect.xMax) {
+                    if (y >= rect.yMin && y <= rect.yMax) {
+                        performCallback(rect.click);
+                    }
+                }
+            }
+        });
+    }
+
     function init(plot) {
         plot.hooks.processRawData.push(processRawData);
         plot.hooks.drawSeries.push(drawSeries);
+        plot.hooks.bindEvents.push(bindEvents);
     };
     
     $.plot.plugins.push({
