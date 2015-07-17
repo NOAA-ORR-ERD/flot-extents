@@ -55,14 +55,14 @@ See samples.html & source below. Feel free to extend the extents.
             extents: {
                 show: false,
                 lineWidth: 1,
-                barHeight: 17,
+                barHeight: null,
                 color: "rgba(192, 192, 192, 1.0)",
                 showConnections: true,
                 connectionColor: "rgba(0, 192, 128, 0.8)",
                 fill: true,
                 fillColor: "rgba(64, 192, 255, 0.5)",
                 showLabels: true,
-                rowHeight: 20,
+                rowHeight: null,
                 rows: 7,
                 barVAlign: "top",
                 labelHAlign: "left"
@@ -122,10 +122,10 @@ See samples.html & source below. Feel free to extend the extents.
         var bw = xto-xfrom;
 
         var yfrom;
-        if (series.extents.barVAlign == "top")
-            yfrom = 4 + series.extents.rowHeight*extent.row;
+        if (series.extents.barVAlign === "top")
+            yfrom = /*4 + */series.extents.rowHeight*extent.row;
         else
-            yfrom = height - 4 - series.extents.rowHeight*(extent.row) - series.extents.barHeight;
+            yfrom = height /*- 4*/ - series.extents.rowHeight*(extent.row) - series.extents.barHeight;
 
         if (series.extents.fill) {
             ctx.fillStyle = extent.fillColor;
@@ -195,6 +195,9 @@ See samples.html & source below. Feel free to extend the extents.
 
         extentsRects = [];
 
+        
+        
+
         var placeholder = plot.getPlaceholder();
         placeholder.find(".extentLabel").remove();
 
@@ -209,6 +212,11 @@ See samples.html & source below. Feel free to extend the extents.
         var width = plot.width();
         var height = plot.height();
 
+        if (series.extents.barHeight == null || series.extents.rowHeight == null) {
+            series.extents.rowHeight = height / series.extents.rows;
+            series.extents.barHeight = series.extents.rowHeight;
+        }
+
         ctx.translate(plotOffset.left, plotOffset.top);
         ctx.lineJoin = "round";
 
@@ -218,7 +226,8 @@ See samples.html & source below. Feel free to extend the extents.
                 continue;
             if ((series.extentdata[i].start < axes.xaxis.max) && (series.extentdata[i].end > axes.xaxis.min)) {
                 xfrom = axes.xaxis.p2c((series.extentdata[i].start<axes.xaxis.min)?axes.xaxis.min:series.extentdata[i].start);
-                xto = axes.xaxis.p2c((series.extentdata[i].end>axes.xaxis.max)?axes.xaxis.max:series.extentdata[i].end);
+                xto = axes.xaxis.p2c((series.extentdata[i].end > axes.xaxis.max) ? axes.xaxis.max : series.extentdata[i].end);
+
                 drawSingleExtent(ctx, width, height, xfrom, xto, series, series.extentdata[i]);
 
                 if (series.extents.showConnections && (series.extentdata[i].start > axes.xaxis.min) && (series.extentdata[i].start < axes.xaxis.max))
