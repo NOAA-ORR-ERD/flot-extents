@@ -140,7 +140,7 @@ See samples.html & source below. Feel free to extend the extents.
             xMin: xfrom,
             xMax: xfrom + bw,
             yMin: yfrom,
-            yMax: xfrom + series.extents.barHeight,
+            yMax: yfrom + series.extents.barHeight + plotOffset.top,
             click: extent.click,
             "extent": extent
         });
@@ -189,6 +189,8 @@ See samples.html & source below. Feel free to extend the extents.
         placeholder.append('<div ' + ((extent.id != null) ? ('id="' + extent.id + '" ') : '') + 'class="extentLabel" style="font-size:smaller;position:absolute;' + (styles.join(';')) + '">' + extent.label + '</div>');
     }
 
+    var plotOffset;
+
     function drawSeries(plot, ctx, series) {
         if (!series.extents || !series.extents.show || !series.extentdata)
             return;
@@ -203,7 +205,7 @@ See samples.html & source below. Feel free to extend the extents.
 
         ctx.save();
 
-        var plotOffset = plot.getPlotOffset();
+        plotOffset = plot.getPlotOffset();
         var axes = plot.getAxes();
         var yf = axes.yaxis.p2c(axes.yaxis.min);
         var yt = axes.yaxis.p2c(axes.yaxis.max);
@@ -256,9 +258,16 @@ See samples.html & source below. Feel free to extend the extents.
     };
 
     function bindEvents(plot, eventHolder) {
+
+        
         eventHolder.mouseup(function (e) {
-            var x = e.pageX;
-            var y = e.pageY;
+
+            var offset = $(this).offset();
+
+            var x = e.pageX - offset.left - plotOffset.left;
+            var y = e.pageY - offset.top; - plotOffset.top;
+
+            console.log("mouseup :" + x + "," + y);
 
             for (var i = 0; i < extentsRects.length; i++) {
                 var rect = extentsRects[i];
