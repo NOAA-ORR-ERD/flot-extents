@@ -1,0 +1,8 @@
+{
+  "name": "jquery-flot-direction",
+  "version": "1.0.0",
+  "description": "Flot Extents is plugin for Flot Javascript plotting library. It produces gantt-like bars (extents on x axis).",
+  "author": "Serge V. Izmaylov",
+  "license": "MIT",
+  "repository": "https://github.com/NOAA-ORR-ERD/jquery-flot-direction"
+}
